@@ -1,15 +1,20 @@
 package cruciverba.controller;
 
+import cruciverba.dizionario.Dizionario;
 import cruciverba.element.GameListener;
+import cruciverba.graphic.ScreenView;
 import cruciverba.model.ModelGame;
 import cruciverba.objects.Box;
 
 import java.awt.*;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class Controller {
 
     ModelGame modelGame;
     GameListener listener;
+    Dizionario dizionario = new Dizionario();
 
     public Controller(ModelGame modelGame) {
         this.modelGame = modelGame;
@@ -26,16 +31,18 @@ public class Controller {
         modelGame.setNeri(neri);
         modelGame.generateBoxes();
         listener.generateGamePanel();
+        listener.generateDebug();
         generateNeri();
-        printGrid();
         generateRowsAndColumns();
+        generateWords();
+        printGrid();
+        listener.updateGraphic();
     }
 
     private void generateNeri() {
         for (int i = 0; i < modelGame.getNeri(); i++) {
             int xNeri = (int) (Math.random() * (double) getX());
             int yNeri = (int) (Math.random() * (double) getY());
-//            Point randomCoordinateNero = new Point(xNeri, yNeri);
             if (getBox(xNeri, yNeri).isNero()) {
                 i--;
             } else {
@@ -45,7 +52,7 @@ public class Controller {
         listener.updateGraphic();
     }
 
-    public void generateRowsAndColumns() {
+    private void generateRowsAndColumns() {
         checkRows();
         checkColumns();
         listener.updateGraphic();
@@ -63,7 +70,7 @@ public class Controller {
         }
     }
 
-    public void checkRows() {
+    private void checkRows() {
         for (int i = 0; i < getX(); i++) {
             for (int j = 0; j < getY(); j++) {
                 if (!getBox(i, j).isCheckRight()) {
@@ -75,7 +82,7 @@ public class Controller {
         }
     }
 
-    public int checkNextRow(Box box, int length) {
+    private int checkNextRow(Box box, int length) {
         if (box.isNero())
             return length;
         length++;
@@ -86,7 +93,7 @@ public class Controller {
         return length;
     }
 
-    public void checkColumns() {
+    private void checkColumns() {
         for (int i = 0; i < getX(); i++) {
             for (int j = 0; j < getY(); j++) {
                 if (!getBox(i, j).isCheckUnder()) {
@@ -98,7 +105,7 @@ public class Controller {
         }
     }
 
-    public int checkNextCol(Box box, int length) {
+    private int checkNextCol(Box box, int length) {
         if (box.isNero())
             return length;
         length++;
@@ -107,6 +114,83 @@ public class Controller {
             return checkNextCol(box.getUnder(), length);
         }
         return length;
+    }
+
+    private void generateWords() {
+        generateHorizontalWords();
+//        generateVerticalWords();
+    }
+
+    private void generateHorizontalWords() {
+        for (int i = 0; i < getX(); i++) {
+            for (int j = 0; j < getY(); j++) {
+                if (getBox(i, j).getHorizontalVal() != null) {
+                    int horizontalLength = Integer.parseInt(getBox(i, j).getHorizontalVal());
+                    String word = dizionario.getRandomWordByLength(horizontalLength);
+                    System.out.println("HORIZONTAL: " + word);
+
+                    for (int k = 0; k < horizontalLength; k++) {
+                        char letter = word.charAt(k);
+                        letter = removeAccentFromChar(letter);
+                        getBox(i + k, j).setLetter(String.valueOf(letter).toUpperCase());
+                    }
+                }
+            }
+        }
+    }
+
+    private void generateVerticalWords() {
+        for (int i = 0; i < getX(); i++) {
+            for (int j = 0; j < getY(); j++) {
+                if (getBox(i, j).getVerticalVal() != null) {
+                    int verticalLength = Integer.parseInt(getBox(i, j).getVerticalVal());
+                    String existingWord = null;
+                    String regexPattern = "^";
+
+                    for (int k = 0; k < verticalLength; k++) {
+                        String currentLetter = getBox(i, j + k).getLetter();
+                        if (currentLetter != null)
+                            regexPattern = regexPattern + "[" + currentLetter.toLowerCase() + "]";
+                        else
+                            regexPattern = regexPattern + "[*]";
+                    }
+                    regexPattern = regexPattern + "$";
+
+                    Optional<String> wordOptional = dizionario.getRandomWordByRegex(regexPattern);
+                    if(wordOptional.isEmpty()) {
+                        listener.reset();
+                    } else {
+                        String word = wordOptional.get();
+                        System.out.println("VERTICAL: " + word);
+                        for (int k = 0; k < verticalLength; k++) {
+                            char letter = word.charAt(k);
+                            letter = removeAccentFromChar(letter);
+                            getBox(i, j + k).setLetter(String.valueOf(letter).toUpperCase());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private char removeAccentFromChar(char letter) {
+        if (letter == 'à')
+            return 'a';
+        if (letter == 'è' || letter == 'é')
+            return 'e';
+        if (letter == 'ì')
+            return 'i';
+        if (letter == 'ò')
+            return 'o';
+        if (letter == 'ù')
+            return 'u';
+        else
+            return letter;
+    }
+
+    private String removeAccentFromString(String letter) {
+        char firstChar = letter.charAt(0);
+        return String.valueOf(removeAccentFromChar(firstChar));
     }
 
     public void onLeftClick(int x, int y) {
@@ -127,6 +211,10 @@ public class Controller {
 
     public int getY() {
         return modelGame.getY();
+    }
+
+    public int getNeri() {
+        return modelGame.getNeri();
     }
 
 }

@@ -5,12 +5,14 @@ public class Box {
 
     private boolean nero;
     private String horizontalVal, verticalVal;
+    private String letter;
     private int x, y;
     private Box right, under;
     private boolean checkRight, checkUnder;
 
     public Box(int x, int y) {
         this.horizontalVal = null;
+        this.verticalVal = null;
         this.verticalVal = null;
         this.x = x;
         this.y = y;
@@ -104,6 +106,14 @@ public class Box {
 
     public void setVerticalVal(String verticalVal) {
         this.verticalVal = verticalVal;
+    }
+
+    public String getLetter() {
+        return letter;
+    }
+
+    public void setLetter(String letter) {
+        this.letter = letter;
     }
 
 }

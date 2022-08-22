@@ -1,7 +1,6 @@
 package cruciverba;
 
 import cruciverba.controller.Controller;
-import cruciverba.dizionario.Dizionario;
 import cruciverba.element.GameListener;
 import cruciverba.graphic.ScreenView;
 import cruciverba.model.ModelGame;
@@ -22,7 +21,6 @@ public class CruciverbaMain {
         controller.setListener(listener);
 
         controller.chooseGridSize(x, y, neri);
-        Dizionario dizionario = new Dizionario();
     }
 
 }

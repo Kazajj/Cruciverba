@@ -10,7 +10,6 @@ public class GameButton extends JButton {
     private int					coordinataX, coordinataY;
 
     public GameButton() {
-        this.setSize(50, 50);
         this.setBackground(Color.LIGHT_GRAY);
     }
 

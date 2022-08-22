@@ -1,7 +1,12 @@
 package cruciverba.dizionario;
 
+import javax.swing.text.html.Option;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+import static java.util.Optional.empty;
 
 /**
  *
@@ -121,6 +126,37 @@ public class Dizionario {
         double random= Math.random()*this.parole.size();
         int rand= (int) random;
         return this.parole.get(rand);
+    }
+
+    public String getRandomWordByLength(int length) {
+        int randomIndex = (int) (Math.random() * (double) this.parole.size());
+        for (int i = randomIndex; i < this.parole.size(); i++) {
+            if (this.parole.get(i).length() == length) {
+                return this.parole.get(i).toLowerCase();
+            }
+        }
+        for (int i = 0; i < randomIndex; i++) {
+            if (this.parole.get(i).length() == length) {
+                return this.parole.get(i).toLowerCase();
+            }
+        }
+        return null;
+    }
+
+    public Optional<String> getRandomWordByRegex(String regexPattern) {
+        int randomIndex = (int) (Math.random() * (double) this.parole.size());
+
+        for (int i = randomIndex; i < this.parole.size(); i++) {
+            if (Pattern.matches(regexPattern, this.parole.get(i))) {
+                return Optional.of(this.parole.get(i).toLowerCase());
+            }
+        }
+        for (int i = 0; i < randomIndex; i++) {
+            if (Pattern.matches(regexPattern, this.parole.get(i))) {
+                return Optional.of(this.parole.get(i).toLowerCase());
+            }
+        }
+        return Optional.empty();
     }
 
 //    public static void main(String... args) throws IOException {
