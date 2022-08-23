@@ -32,8 +32,11 @@ public class Controller {
         modelGame.generateBoxes();
         listener.generateGamePanel();
         listener.generateDebug();
+
         generateNeri();
         generateRowsAndColumns();
+        resetCheckValues();
+
         generateWords();
         printGrid();
         listener.updateGraphic();
@@ -56,6 +59,15 @@ public class Controller {
         checkRows();
         checkColumns();
         listener.updateGraphic();
+    }
+
+    private void resetCheckValues() {
+        for (int i = 0; i < getY(); i++) {
+            for (int j = 0; j < getX(); j++) {
+                getBox(j, i).setCheckRight(false);
+                getBox(j, i).setCheckUnder(false);
+            }
+        }
     }
 
     private void printGrid() {
@@ -117,8 +129,21 @@ public class Controller {
     }
 
     private void generateWords() {
-        generateHorizontalWords();
+//        for (int j = 1; j <= getY(); j++)
+//        {
+//            for (int i = 1 ; i <= getX(); i++)
+//            {
+//                System.out.print(j + i + " ");
+//            }
+//            System.out.println();
+//        }
+
+//        generateHorizontalWords();
 //        generateVerticalWords();
+    }
+
+    private void generateHorizontalWords(Box box) {
+
     }
 
     private void generateHorizontalWords() {
@@ -126,13 +151,31 @@ public class Controller {
             for (int j = 0; j < getY(); j++) {
                 if (getBox(i, j).getHorizontalVal() != null) {
                     int horizontalLength = Integer.parseInt(getBox(i, j).getHorizontalVal());
-                    String word = dizionario.getRandomWordByLength(horizontalLength);
-                    System.out.println("HORIZONTAL: " + word);
+
+                    String existingWord = null;
+                    String regexPattern = "^";
 
                     for (int k = 0; k < horizontalLength; k++) {
-                        char letter = word.charAt(k);
-                        letter = removeAccentFromChar(letter);
-                        getBox(i + k, j).setLetter(String.valueOf(letter).toUpperCase());
+                        String currentLetter = getBox(i + k, j).getLetter();
+                        if (currentLetter != null)
+                            regexPattern = regexPattern + "[" + currentLetter.toLowerCase() + "]";
+                        else
+                            regexPattern = regexPattern + "[\\D]";
+                    }
+                    regexPattern = regexPattern + "$";
+
+                    Optional<String> wordOptional = dizionario.getRandomWordByRegex(regexPattern);
+
+                    if(wordOptional.isEmpty()) {
+                        listener.reset();
+                    } else {
+                        String word = wordOptional.get();
+                        System.out.println("HORIZONTAL: " + word);
+                        for (int k = 0; k < horizontalLength; k++) {
+                            char letter = word.charAt(k);
+                            letter = removeAccentFromChar(letter);
+                            getBox(i + k, j).setLetter(String.valueOf(letter).toUpperCase());
+                        }
                     }
                 }
             }
@@ -152,7 +195,7 @@ public class Controller {
                         if (currentLetter != null)
                             regexPattern = regexPattern + "[" + currentLetter.toLowerCase() + "]";
                         else
-                            regexPattern = regexPattern + "[*]";
+                            regexPattern = regexPattern + "[\\D]";
                     }
                     regexPattern = regexPattern + "$";
 

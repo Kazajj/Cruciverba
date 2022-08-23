@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class CruciverbaMain {
 
     public static void main(String[] args) throws IOException {
-        int x = 18, y = 11, neri = 27;
+        int x = 5, y = 5, neri = 0;
 
         ModelGame modelGame = new ModelGame();
         Controller controller = new Controller(modelGame);
